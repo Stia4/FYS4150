@@ -85,7 +85,7 @@ arma::vec solve_general(arma::mat A, arma::vec g){
         v(i) = (g_(i) - A(i+1, i)*v(i+1))/b_(i);        // (g__i - c_i * v_i+1) / b__i
     }
 
-    return v; // v is somehow a factor n^2 too large
+    return v;
 }
 
 arma::vec solve_special(arma::vec g){
@@ -120,25 +120,36 @@ arma::vec solve_special(arma::vec g){
         v(i) = (g_(i) + v(i+1))/b_(i);  // 3 FLOPs
     }
 
-    return v / pow(n, 2);
+    return v;
 }
 
 int main(){
-/* ======== PROBLEM 2 ======== */ /*
-int n = 1001;                            // number of points, n+1 to get nice step size
+/* ======== PROBLEM 2 ======== */
+int n = 10001;                           // number of points, n+1 to get nice step size
 arma::vec x = arma::linspace(0, 1, n);   // initializing x vector, n points in [0, 1]
 arma::vec y = u(x);                      // vector with values for u(x), length n
 write_x_y(x, y, "xu.txt");               // writing to file
 
-/* ======== PROBLEM 7 ======== */ /*
-double signature[3] = {-1, 2, -1};            // values on sub-, main, and super-diagonal
-arma::mat A = make_tridiagonal(n, signature); // main matrix A (n x n)
-arma::vec g = f(x);                           // g = f(x in [0, 1])
+/* ======== PROBLEM 7 ======== */
+double N_comp[4] = {11, 101, 1001, 10001}; // values of n to compute for
+double signature[3] = {-1, 2, -1};         // values on sub-, main, and super-diagonal
+arma::mat A_comp;
+arma::vec x_comp;
+double h_comp;
+arma::vec g_comp;
+arma::vec v_comp;
 
-arma::vec v = solve_general(A, g); // solving system
-write_x_y(x, v, "xv.txt"); // writing x,v to file
+for (double Ni : N_comp){
+    A_comp = make_tridiagonal(Ni, signature); // main matrix A (n x n)
+    x_comp = arma::linspace(0, 1, Ni);        // initializing x vector, n points in [0, 1]
+    h_comp = 1/(Ni-1);                        // step size h
+    g_comp = pow(h_comp, 2)*f(x_comp);        // g = h^2 f(x in [0, 1])
 
-/* ======== PROBLEM 8 ======== */ /*
+    v_comp = solve_general(A_comp, g_comp);                               // solving system
+    write_x_y(x_comp, v_comp, "xv_n"+to_string((int)round(Ni)-1)+".txt"); // writing x,v to file
+}
+
+/* ======== PROBLEM 8 ======== */
 arma::vec N = arma::vec({11, 101, 1001, 10001}); // values of N to use
 // storing x as row in matrix with a column for each N, padded with nan
 arma::mat xi = arma::mat(N.max(), N.n_rows).fill(NAN);
@@ -146,20 +157,22 @@ arma::mat ui = arma::mat(xi); // storing u and v, same format as x
 arma::mat vi = arma::mat(xi);
 arma::mat Ai;                 // equation matrix A for each N
 arma::vec gi;                 // RHS of matrix equation, f(x)
+double hi;
 
 for (int i=0; i<N.n_rows; i++){
     xi.col(i).rows(0, N(i)-1) = arma::linspace(0, 1, N(i)); // leaving padding if N.max > N(i)
+    hi = xi.col(i)(1) - xi.col(i)(0);
     Ai = make_tridiagonal(N(i), signature);                 // Tridiagonal matrix size nxn
-    gi = f(xi.col(i).rows(0, N(i)-1));                      // RHS for n=N(i)
+    gi = pow(hi, 2) * f(xi.col(i).rows(0, N(i)-1));                      // RHS for n=N(i)
 
     ui.col(i) = u(xi.col(i));                          // analytical, can be passed whole
     vi.col(i).rows(0, N(i)-1) = solve_general(Ai, gi); // numerical, need specific rows due to derivation
 }
 
 // interpreting problem description as saving by text is no longer needed, taking shortcut:
-xi.save("xi.txt"); ui.save("ui.txt"); vi.save("vi.txt");
+xi.save("xi.data"); ui.save("ui.data"); vi.save("vi.data");
 cout << "Data saved to files" << endl;
-*/
+
 /* ======== PROBLEM 9 ======== */
 // see function solve_special()
 

@@ -15,50 +15,45 @@ def read_x_y(filename):
     return x, y
 
 # ====== Problems 2 and 7 ======
-fig, ax = plt.subplots(1, 2)
-x, u = read_x_y("xu.txt")
-ax[0].plot(x, u)
-x, v = read_x_y("xv.txt")
-ax[1].plot(x, v)
-plt.show() #quick comparation between analytical and numerical for set n
+x, u = read_x_y("xu.txt") #exact solution
+plt.plot(x, u, label="u(x), n=10001")
+
+x1, v1 = read_x_y("xv_n10.txt") #numerical solutions
+x2, v2 = read_x_y("xv_n100.txt")
+x3, v3 = read_x_y("xv_n1000.txt")
+x4, v4 = read_x_y("xv_n10000.txt")
+plt.plot(x1, v1, label="v(x), n=11")
+plt.plot(x2, v2, label="v(x), n=101")
+plt.plot(x3, v3, label="v(x), n=1001")
+plt.plot(x4, v4, label="v(x), n=10001")
+plt.title("Comparison of exact and numerical solutions")
+plt.legend()
+plt.savefig("comparison.pdf", format="pdf")
+plt.clf() #clear figure
 
 # ========= Problem 8 ==========
-xi = pa.mat(); xi.load("xi.txt") #loading saved data
-ui = pa.mat(); ui.load("ui.txt")
-vi = pa.mat(); vi.load("vi.txt")
+xi = pa.mat(); xi.load("xi.data") #loading saved data
+ui = pa.mat(); ui.load("ui.data")
+vi = pa.mat(); vi.load("vi.data")
 xi = np.array(xi) #numpy arrays are easier to use here
 ui = np.array(ui)
 vi = np.array(vi)
-
-# Comparison plots
-for i in range(len(xi[0, :])):
-    N = sum(~np.isnan(xi[:, i])) #number of non-nan elements
-    x = xi[:N, i] #each column is a plot, grabbing only non-nan
-    u = ui[:N, i]
-    v = vi[:N, i]
-
-    plt.plot(x, u, label=r"Analytical u($x_i$)")
-    plt.plot(x, v, label=r"Numerical v($x_i$)/n$^2$")
-    plt.title("Analytical VS Numerical for N = {:d} points, dx = {:.0e}".format(N, 1/(N-1)))
-    plt.xlabel("x")
-    plt.ylabel("y")
-    plt.legend()
-    plt.show()
 
 # Absolute error
 delta_i = abs(ui - vi)
 for i in range(len(delta_i[0, :])):
     N = sum(~np.isnan(delta_i[:, i])) #number of non-nan elements
-    x = xi[:N, i]
+    x = xi[:N, i] #each column is a plot, grabbing only non-nan
     di = delta_i[:N, i]    
     plt.plot(x, di, label=r"N = {:d}, dx = {:.0e}".format(N, 1/(N-1)))
 
-plt.title("Absolute error for different number of points")
+plt.title(r"Absolute error $\Delta$ for different number of points")
 plt.xlabel("x")
 plt.ylabel(r"$\Delta$")
 plt.legend()
 plt.yscale('log')
-plt.show()
+plt.savefig("abs_err.pdf", format="pdf")
+plt.clf()
 
 # Relative error
 ui_nan = ui; ui_nan[ui == 0] = np.nan #replacing 0 with nan, due to divide by 0 in eps
@@ -67,13 +62,13 @@ for i in range(len(eps_i[0, :])):
     N = sum(~np.isnan(eps_i[:, i])) #number of non-nan elements
     x = xi[:N, i]
     ei = eps_i[:N, i]
+    print("Maximum relative error: {:.3f} for N = {:d}".format(np.nanmax(ei), N))
     plt.plot(x, ei, label=r"N = {:d}, dx = {:.0e}".format(N+1, 1/N)) #N+1 due to ui_nan
 
-plt.title("Relative error for different number of points")
+plt.title(r"Relative error $\epsilon$ for different number of points")
 plt.xlabel("x")
 plt.ylabel(r"$\epsilon$")
 plt.legend()
 plt.yscale('log')
-plt.show()
-
-# Max of relative error
+plt.savefig("rel_err.pdf", format="pdf")
+plt.clf()
