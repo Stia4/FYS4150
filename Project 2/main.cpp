@@ -72,7 +72,15 @@ arma::vec analytical_eigenvalues(arma::mat A){
 
 arma::mat analytical_eigenvectors(arma::mat A){
     /*
-    desc
+    Given a symmetric tridiagonal matrix A NxN, returns a matrix
+    containing eigenvectors calculated using analytical expression.
+    
+    Inputs:
+        arma::mat A
+            Armadillo matrix size NxN, assumed tridiagonal and symmetric
+    Returns:
+        arma::mat eigenvectors
+            Armadillo matrix size NxN containing eigenvectors of A as columns
     */
     assert(A.is_square());
 
