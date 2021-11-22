@@ -43,7 +43,7 @@ def load_mat(path):
     return M
 
 def Histogram():
-    T1, T2 = load_mat("Histogram.dat")
+    T1, T2 = load_mat("data/Histogram.dat")
     fig, ax = plt.subplots(2, 1, figsize=(9, 12))
     x = np.arange(-800, 800, 4) / 400
     ax[0].bar(x, T1/sum(T1), width=4/400, align='edge', color="C0")
@@ -111,8 +111,8 @@ def Cv_peaks():
     plt.clf()
 
 def Burnin():
-    EvO = pa.cube(); EvO.load("Evolution_ordered.dat"); EvO = np.array(EvO)
-    EvR = pa.cube(); EvR.load("Evolution_random.dat"); EvR = np.array(EvR)
+    EvO = pa.cube(); EvO.load("data/Evolution_ordered.dat"); EvO = np.array(EvO)
+    EvR = pa.cube(); EvR.load("data/Evolution_random.dat"); EvR = np.array(EvR)
 
     N = np.linspace(1, 10000, 100)
     plt.plot(N, EvO[0, 0, :], label=r"<$\epsilon$>, T = 1.0")
